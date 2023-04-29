@@ -95,9 +95,9 @@ const createNicknames = function (accs) {
 
 createNicknames(accounts)
 
-const displayBalance = function(transactions) {
-  const balance = transactions.reduce((acc, item) => acc + item, 0)
-
+const displayBalance = function(account) {
+  const balance = account.transactions.reduce((acc, item) => acc + item, 0);
+  account.balance = balance;
   labelBalance.textContent = `${balance}$`;
 }
 
@@ -122,6 +122,17 @@ const displayTotal = function(account) {
   labelSumInterest.textContent = `${interestTotal}$`;
 }
 
+const updateUi = function(account) {
+  // Display transactions
+  displayTransactions(account.transactions)
+
+  // Display balance
+  displayBalance(account)
+
+  // Display total
+  displayTotal(account)
+}
+
 let currentAccount;
 
 btnLogin.addEventListener('click', function(e) {
@@ -138,13 +149,25 @@ btnLogin.addEventListener('click', function(e) {
     inputLoginPin.value = '';
     inputLoginPin.blur();
 
-    // Display transactions
-    displayTransactions(currentAccount.transactions)
+    updateUi(currentAccount);
+  }
+})
 
-    // Display balance
-    displayBalance(currentAccount.transactions)
+btnTransfer.addEventListener('click', function(e) {
+  e.preventDefault();
+  const transferAmount = Number(inputTransferAmount.value)
+  const recipientNickname = inputTransferTo.value
+  const recipientAccount = accounts
+    .find(account => account.nickname === recipientNickname)
+  console.log(transferAmount);
+  console.log(recipientAccount);
 
-    // Display total
-    displayTotal(currentAccount)
+  inputTransferTo.value = '';
+  inputTransferAmount.value = '';
+
+  if (transferAmount > 0 && currentAccount.balance >= transferAmount && recipientAccount && currentAccount.nickname !== recipientAccount.nickname) {
+    currentAccount.transactions.push(-transferAmount);
+    recipientAccount.transactions.push(transferAmount);
+    updateUi(currentAccount);
   }
 })
