@@ -83,8 +83,6 @@ const displayTransactions = function(transactions) {
   })
 }
 
-displayTransactions(account1.transactions)
-
 const createNicknames = function (accs) {
   accs.forEach(function (acc) {
     acc.nickname = acc.userName
@@ -97,37 +95,56 @@ const createNicknames = function (accs) {
 
 createNicknames(accounts)
 
-const userName = 'Oliver Avila';
-const nickName = userName.toLowerCase().split(' ').map(word => word[0]).join('')
-
 const displayBalance = function(transactions) {
   const balance = transactions.reduce((acc, item) => acc + item, 0)
 
   labelBalance.textContent = `${balance}$`;
 }
 
-displayBalance(account1.transactions)
-
-const displayTotal = function(transactions) {
-  const depositTotal = transactions
+const displayTotal = function(account) {
+  const depositTotal = account.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0)
   labelSumIn.textContent = `${depositTotal}$`;
 
-  const withdrawalsTotal = transactions
+  const withdrawalsTotal = account.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0)
   labelSumOut.textContent = `${withdrawalsTotal}$`;
 
-  const interestTotal = transactions
+  const interestTotal = account.transactions
     .filter(trans => trans > 0)
-    .map(deposit => (deposit * 1.1) / 100)
-    .filter((interes, index, arr) => {
-      return interes >= 5
+    .map(deposit => (deposit * account.interest) / 100)
+    .filter((interest, index, arr) => {
+      return interest >= 5
     })
     .reduce((acc, interest) => acc + interest, 0)
   labelSumInterest.textContent = `${interestTotal}$`;
 }
 
-displayTotal(account1.transactions)
+let currentAccount;
 
+btnLogin.addEventListener('click', function(e) {
+  e.preventDefault();
+  currentAccount = accounts.find(account  => account.nickname === inputLoginUsername.value);
+  console.log(currentAccount);
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and welcome message
+    labelWelcome.textContent = `Рады, что вы снова с нами, ${currentAccount.userName.split(' ')[0]}!`;
+    containerApp.style.opacity = 100;
+
+    // Clear inputs
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // Display transactions
+    displayTransactions(currentAccount.transactions)
+
+    // Display balance
+    displayBalance(currentAccount.transactions)
+
+    // Display total
+    displayTotal(currentAccount)
+  }
+})
