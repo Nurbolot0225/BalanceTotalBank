@@ -4,7 +4,7 @@
 
 const account1 = {
   userName: 'Cecil Ireland',
-  transactions: [500, 250, -300, 5000, -850, -110, -170, 1100],
+  transactions: [500, 250, -300.99, 5000.90, -850, -110, -170, 1100],
   interest: 1.5,
   pin: 1111,
 };
@@ -78,7 +78,7 @@ const displayTransactions = function(transactions, sort = false) {
          <div class="transactions__type transactions__type--${transType}">
            ${index + 1} ${transType}
          </div>
-         <div class="transactions__value">${trans}</div>
+         <div class="transactions__value">${trans.toFixed(2)}</div>
      </div>`
 
     containerTransactions.insertAdjacentHTML('afterbegin', transactionRow)
@@ -100,19 +100,19 @@ createNicknames(accounts)
 const displayBalance = function(account) {
   const balance = account.transactions.reduce((acc, item) => acc + item, 0);
   account.balance = balance;
-  labelBalance.textContent = `${balance}$`;
+  labelBalance.textContent = `${balance.toFixed(2)}$`;
 }
 
 const displayTotal = function(account) {
   const depositTotal = account.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0)
-  labelSumIn.textContent = `${depositTotal}$`;
+  labelSumIn.textContent = `${depositTotal.toFixed(2)}$`;
 
   const withdrawalsTotal = account.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0)
-  labelSumOut.textContent = `${withdrawalsTotal}$`;
+  labelSumOut.textContent = `${withdrawalsTotal.toFixed(2)}$`;
 
   const interestTotal = account.transactions
     .filter(trans => trans > 0)
@@ -121,7 +121,7 @@ const displayTotal = function(account) {
       return interest >= 5
     })
     .reduce((acc, interest) => acc + interest, 0)
-  labelSumInterest.textContent = `${interestTotal}$`;
+  labelSumInterest.textContent = `${interestTotal.toFixed(2)}$`;
 }
 
 const updateUi = function(account) {
@@ -142,7 +142,7 @@ let currentAccount;
 btnLogin.addEventListener('click', function(e) {
   e.preventDefault();
   currentAccount = accounts.find(account  => account.nickname === inputLoginUsername.value);
-  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+  if (currentAccount?.pin === +(inputLoginPin.value)) {
     // Display UI and welcome message
     labelWelcome.textContent = `Рады, что вы снова с нами, ${currentAccount.userName.split(' ')[0]}!`;
     containerApp.style.opacity = 100;
@@ -158,7 +158,7 @@ btnLogin.addEventListener('click', function(e) {
 
 btnTransfer.addEventListener('click', function(e) {
   e.preventDefault();
-  const transferAmount = Number(inputTransferAmount.value)
+  const transferAmount = +(inputTransferAmount.value)
   const recipientNickname = inputTransferTo.value
   const recipientAccount = accounts
     .find(account => account.nickname === recipientNickname)
@@ -176,7 +176,7 @@ btnTransfer.addEventListener('click', function(e) {
 
 btnClose.addEventListener('click', function(e) {
   e.preventDefault();
-  if (inputCloseNickname.value === currentAccount.nickname && Number(inputClosePin.value) === currentAccount.pin) {
+  if (inputCloseNickname.value === currentAccount.nickname && +(inputClosePin.value) === currentAccount.pin) {
     const currentAccountIndex = accounts.findIndex(account => account.nickname === currentAccount.nickname)
 
     accounts.splice(currentAccountIndex, 1);
@@ -191,7 +191,7 @@ btnClose.addEventListener('click', function(e) {
 
 btnLoan.addEventListener('click', function(e) {
   e.preventDefault();
-  const loadAmount = Number(inputLoanAmount.value)
+  const loadAmount = Math.floor(inputLoanAmount.value)
 
   if (loadAmount > 0 && currentAccount.transactions.some(trans => trans >= (loadAmount * 10) / 100)) {
     currentAccount.transactions.push(loadAmount)
