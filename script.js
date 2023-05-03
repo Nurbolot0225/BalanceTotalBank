@@ -14,7 +14,7 @@ const account1 = {
     '2021-01-22T12:17:46.255Z',
     '2021-02-12T15:14:06.486Z',
     '2021-03-09T11:42:26.371Z',
-    '2021-05-21T07:43:59.331Z',
+    '2023-05-01T07:43:59.331Z',
     '2021-06-22T15:21:20.814Z',
   ],
   currency: 'USD',
@@ -28,11 +28,11 @@ const account2 = {
   pin: 2222,
   transactionsDates: [
     '2020-10-02T14:43:31.074Z',
-    '2020-10-29T11:24:19.761Z',
+    '2023-10-29T11:24:19.761Z',
     '2020-11-15T10:45:23.907Z',
     '2021-01-22T12:17:46.255Z',
-    '2021-02-12T15:14:06.486Z',
-    '2021-03-09T11:42:26.371Z',
+    '2023-02-12T15:14:06.486Z',
+    '2023-03-09T11:42:26.371Z',
     '2021-05-21T07:43:59.331Z',
     '2021-06-22T15:21:20.814Z',
   ],
@@ -48,9 +48,9 @@ const account3 = {
   transactionsDates: [
     '2020-10-02T14:43:31.074Z',
     '2020-10-29T11:24:19.761Z',
-    '2020-11-15T10:45:23.907Z',
+    '2023-11-15T10:45:23.907Z',
     '2021-01-22T12:17:46.255Z',
-    '2021-02-12T15:14:06.486Z',
+    '2023-02-12T15:14:06.486Z',
     '2021-03-09T11:42:26.371Z',
     '2021-05-21T07:43:59.331Z',
     '2021-06-22T15:21:20.814Z',
@@ -66,9 +66,9 @@ const account4 = {
   pin: 4444,
   transactionsDates: [
     '2020-10-02T14:43:31.074Z',
-    '2020-10-29T11:24:19.761Z',
+    '2023-10-29T11:24:19.761Z',
     '2020-11-15T10:45:23.907Z',
-    '2021-01-22T12:17:46.255Z',
+    '2023-01-22T12:17:46.255Z',
     '2021-02-12T15:14:06.486Z',
   ],
   currency: 'EUR',
@@ -81,11 +81,11 @@ const account5 = {
   interest: 1.1,
   pin: 5555,
   transactionsDates: [
-    '2020-10-02T14:43:31.074Z',
+    '2023-10-02T14:43:31.074Z',
     '2020-10-29T11:24:19.761Z',
-    '2020-11-15T10:45:23.907Z',
+    '2023-11-15T10:45:23.907Z',
     '2021-01-22T12:17:46.255Z',
-    '2021-02-12T15:14:06.486Z',
+    '2023-02-12T15:14:06.486Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -119,7 +119,25 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseNickname = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const   displayTransactions = function(account, sort = false) {
+const formatTransactionDate = function(date) {
+  const getDaysBetween2Days = (date1, date2) => Math.round(Math.abs((date1 - date2) / (1000 * 60 * 60 * 24)));
+
+  const daysPassed = getDaysBetween2Days(new Date(), date)
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return 'Сегодня';
+  if (daysPassed === 1) return 'Вчера';
+  if (daysPassed <= 5) return `${daysPassed} дня назад`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = `${date.getFullYear()}`.padStart(2, '0');
+
+    return `${day}/${month}/${year}`;
+  }
+}
+
+const displayTransactions = function(account, sort = false) {
   containerTransactions.innerHTML = '';
 
   const transacs = sort ? account.transactions.slice().sort((x, y) => x - y) : account.transactions;
@@ -128,11 +146,7 @@ const   displayTransactions = function(account, sort = false) {
     const transType = trans > 0 ? 'deposit' : 'withdrawal';
 
     const date = new Date(account.transactionsDates[index]);
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = `${date.getFullYear()}`.padStart(2, '0');
-
-    const transDate = `${day}/${month}/${year}`;
+    const transDate = formatTransactionDate(date);
 
     const transactionRow = `
      <div class="transactions__row">
