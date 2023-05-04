@@ -215,12 +215,36 @@ const updateUi = function(account) {
   console.log(account1);
 }
 
-let currentAccount;
+let currentAccount, currentLogOutTimer;
 
-// Always Logged in
 currentAccount = account1;
 updateUi(currentAccount);
 containerApp.style.opacity = 100;
+
+const startLogoutTimer = function() {
+  const logOutTimerCallback = function() {
+    const minutes = String(Math.trunc(time / 60)).padStart(2, '0');
+    const second = String(time % 60).padStart(2, '0');
+    // В каждом вызове показывать оставшеетя время в UI
+    labelTimer.textContent = `${minutes}:${second}`;
+    // После истечения времени остановиться таймер и выйти из приложения
+    if (time === 0) {
+      clearInterval(logOutTimer);
+      containerApp.style.opacity = 100;
+      labelWelcome.textContent = 'Войдите в свой аккаунт';
+    }
+
+    time--;
+  }
+  // Установить время выхода через 5 мунит
+  let time = 300;
+
+  // Вызов таймера каждую секунду
+  logOutTimerCallback();
+  const logOutTimer = setInterval(logOutTimerCallback, 1000);
+
+  return logOutTimer;
+}
 
 // Event Handlers
 
@@ -258,6 +282,11 @@ btnLogin.addEventListener('click', function(e) {
     inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    // Check if the timer exists
+    if (currentLogOutTimer) clearInterval
+    (currentLogOutTimer);
+    currentLogOutTimer = startLogoutTimer();
+
     updateUi(currentAccount);
   }
 })
@@ -284,6 +313,10 @@ btnTransfer.addEventListener('click', function(e) {
     recipientAccount.transactionsDates.push(new Date().toISOString());
 
     updateUi(currentAccount);
+
+    // Reset the timer
+    clearInterval(currentLogOutTimer);
+    currentLogOutTimer = startLogoutTimer();
   }
 })
 
@@ -307,11 +340,17 @@ btnLoan.addEventListener('click', function(e) {
   const loadAmount = Math.floor(inputLoanAmount.value)
 
   if (loadAmount > 0 && currentAccount.transactions.some(trans => trans >= (loadAmount * 10) / 100)) {
-    currentAccount.transactions.push(loadAmount)
-    currentAccount.transactionsDates.push(new Date().toISOString());
-    updateUi(currentAccount)
+    setTimeout(function() {
+      currentAccount.transactions.push(loadAmount)
+      currentAccount.transactionsDates.push(new Date().toISOString());
+      updateUi(currentAccount);
+    }, 5000)
   }
   inputLoanAmount.value = '';
+
+  // Reset the timer
+  clearInterval(currentLogOutTimer);
+  currentLogOutTimer = startLogoutTimer();
 })
 
 let transactionsSorted = false;
