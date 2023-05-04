@@ -227,10 +227,6 @@ const updateUi = function(account) {
 
 let currentAccount, currentLogOutTimer;
 
-currentAccount = account1;
-updateUi(currentAccount);
-containerApp.style.opacity = 100;
-
 const startLogoutTimer = function() {
   const logOutTimerCallback = function() {
     const minutes = String(Math.trunc(time / 60)).padStart(2, '0');
